@@ -17,8 +17,9 @@ export (float) var acceleration = 0.25
 
 
 var velocity = Vector2.ZERO
-var state = IDLE
-
+var state = MOVE
+var jump = false
+var jumpTime = 0
 
 func _physics_process(delta):
 	match state:
@@ -37,9 +38,25 @@ func move(delta):
 	get_input()
 	velocity.y += gravity * delta
 	velocity = move_and_slide(velocity, Vector2.UP)
-	if Input.is_action_just_pressed("ui_accept"):
-		if is_on_floor():
-			velocity.y = jump_speed
+	
+#	if Input.is_action_pressed("ui_accept"):
+#		if is_on_floor():
+#			velocity.y = jump_speed
+#		elif not is_on_floor():
+#			velocity.y = jump_speed
+
+# colin
+	var jump_pressed = Input.is_action_pressed('ui_select') #jump button is keep pressed
+	var jump_cut = Input.is_action_just_released('ui_select')  #jump button just released
+	var jump = Input.is_action_just_pressed('ui_select')   #jump button is just pressed
+
+	if jump && is_on_floor():  # check if the jump button is just pressed and if the player is on the floor
+		jump() # call jump method
+	if velocity.y < 0 && !jump_pressed: # here is the deal: if the jump button is not keep pressed anymore, the y velocity is set to 0 and the player don't go up anymore
+		velocity.y = lerp(velocity.y, 0, lerp(0, 1, 0.1))
+	
+func jump():
+	velocity.y = jump_speed
 
 func get_input():
 	var dir = 0
@@ -71,3 +88,21 @@ func _on_Timer_timeout(delta):
 	velocity.y += gravity * delta * 8
 	velocity = move_and_slide(velocity, Vector2.UP)
 	state = MOVE
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
